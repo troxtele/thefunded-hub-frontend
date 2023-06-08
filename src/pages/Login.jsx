@@ -1,22 +1,52 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { google, facebook, apple, tringle } from "../ui/images";
-import { Link, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { AuthContext } from "../context/AuthProvider";
+import { toast } from "react-toast";
 
 export default function Login() {
-    const { pathname } = useLocation();
+  const { pathname } = useLocation();
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { login } = useContext(AuthContext)
+  // const location = useLocation();
+  const navigate = useNavigate();
+  // const from = location.state?.from?.pathname || "/";
 
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, [pathname]);
+  const handleLogin = (data, event) => {
+    login(data.email, data.password)
+      .then(result => {
+        const user = result.user;
+        console.log(user);
+        toast.success("Successfully logged in");
+        event.target.reset();
+        navigate('/')
+
+        // fetch(`https://nerd-academy-server.vercel.app/jwt?email=${data.email}`)
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         if (data.accessToken) {
+        //             localStorage.setItem('accessToken', data.accessToken);
+        //         }
+        //     })
+        // navigate(from, { replace: true });
+      })
+      .catch(error => {
+        toast.error(error.message);
+      })
+  }
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
   return (
     <>
       <Navbar />
       <section className="login relative">
         <div className="container">
           <div className="wrapper flex justify-center items-center min-h-[40vh] py-20">
-            <form
+            <form onSubmit={handleSubmit(handleLogin)}
               className="grid gap-6 sm:gap-8 md:gap-10 p-7 sm:p-9 md:p-12 relative z-10 rounded-xl  bg-primary/[5%] border-primary"
               action=""
             >
@@ -28,20 +58,28 @@ export default function Login() {
               {/* Email */}
               <div className="email">
                 <input
+                  {...register("email", {
+                    required: "email address is required",
+                  })}
                   name="email"
                   className="email w-full focus:outline-primary/70 border-none outline outline-2 outline-primary/30  bg-transparent py-2 sm:py-2.5 md:py-3 px-6 rounded-md transition-all duration-200"
                   type="email"
                   placeholder="Email"
                 />
+                {errors.email && <p className="text-error">{errors.email?.message}</p>}
               </div>
               {/* Password */}
-              <div className="email">
+              <div className="password">
                 <input
-                  name="email"
+                  {...register("password", {
+                    required: "password is required"
+                  })}
+                  name="password"
                   className="email w-full focus:outline-primary/70 border-none outline outline-2 outline-primary/30  bg-transparent py-2 sm:py-2.5 md:py-3 px-6 rounded-md transition-all duration-200"
                   type="password"
                   placeholder="Password"
                 />
+                {errors.password && <p className="text-error">{errors.password?.message}</p>}
               </div>
 
               <div className="wrapper flex gap-3 flex-col sm:flex-row justify-between items-center">
@@ -54,16 +92,18 @@ export default function Login() {
                   <label htmlFor="remeber" className="sm:cursor-pointer">Remember me</label>
                 </div>
                 {/* Forget password */}
-                <div className="forgetpass">
+                {/* <div className="forgetpass">
                   <a href="#" className="underline font-thin ">
                     Forget Password
                   </a>
-                </div>
+                </div> */}
               </div>
 
               {/* Login button */}
               <div className="login-btn mt-6 flex justify-center items-center">
-                <button className="py-2 px-16 border-[4px] border-all hover:border-all/50 transition-all duration-300 rounded-lg">
+                <button className="py-2 px-16 border-[4px] border-all hover:border-all/50 transition-all duration-300 rounded-lg"
+                  value="login" type="submit"
+                >
                   Login
                 </button>
               </div>
