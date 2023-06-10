@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../context/AuthProvider";
-import { toast } from "react-toast";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Login() {
   const { pathname } = useLocation();
@@ -160,8 +160,11 @@ export default function Login() {
           src={tringle}
           alt="tringle"
         />
+       
       </section>
+      
       <Footer />
+      <Toaster />
     </>
   );
 }

@@ -1,27 +1,31 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { arrow, tringle } from "../ui/images";
+import { apple, arrow, facebook, google, tringle } from "../ui/images";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../context/AuthProvider";
 import { Country } from "country-state-city";
+import toast, { Toaster } from 'react-hot-toast';
+import { FacebookAuthProvider, GoogleAuthProvider } from "firebase/auth";
 const allCountry = Country.getAllCountries();
 
 export default function Registration() {
 
   const { pathname } = useLocation();
   const { register, handleSubmit, formState: { errors } } = useForm()
-  const { createUser, updateUser } = useContext(AuthContext);
+  const { createUser, updateUser, googleSignIn, facebookSignIn } = useContext(AuthContext);
+  const googleProvider = new GoogleAuthProvider()
+  const facebookProvider = new FacebookAuthProvider();
   const navigate = useNavigate();
 
-  const handleSignUp = (data) => {
+  const handleSignUp = (data, event) => {
     // console.log(data);
     createUser(data.email, data.password)
       .then(result => {
         const user = result.user;
-        console.log(user);
-        // event.target.reset();
+       toast.success("Successfully User Created")
+        event.target.reset();
         const userInfo = {
           displayName: data.name,
         };
@@ -52,7 +56,7 @@ export default function Registration() {
 
         updateUser(userInfo)
           .then(() => {
-            alert("Successfully User Created");    
+           toast("Successfully User Created");    
             console.log("üser ofr db line 42", userDataForDB);  
           })
           .catch(error => {
@@ -67,6 +71,32 @@ export default function Registration() {
   };
 
 
+ // Google Sign In
+ const handleSignInGoogle = () => {
+  googleSignIn(googleProvider)
+    .then(result => {
+      const user = result.user;
+      
+      toast.success("successfully logged in");
+      navigate('/');
+    })
+    .catch(error => {
+      toast.error(error.message);
+    })
+}
+// Facebook Sign In
+const handelFacebookSignIn = () => {
+  facebookSignIn(facebookProvider)
+      .then(result => {
+          const user = result.user
+          console.log(user);
+
+      })
+      .catch(error => {
+          console.log('Error', error);
+      })
+
+}
 
 
 
@@ -75,6 +105,7 @@ export default function Registration() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return (
+
     <>
       <Navbar />
       <section className="registration relative">
@@ -261,6 +292,37 @@ export default function Registration() {
               <div className="login-btn mt-6 flex justify-center items-center">
                 <input className="py-2 px-16 border-[4px] border-all hover:border-all/50 transition-all duration-300 rounded-lg" type="submit" value="register" />
               </div>
+              {/* signin */}
+              <div className="signup grid gap-4">
+                <div className="heading flex justify-center items-center">
+                  <h5>Or sign up with:</h5>
+                </div>
+
+                <div className="logos flex justify-center items-center gap-3">
+                  <a onClick={handleSignInGoogle}>
+                    <img
+                      className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
+                      src={google}
+                      alt="google"
+                    />
+                  </a>
+                  <a onClick={handelFacebookSignIn}
+                   >
+                    <img
+                      className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
+                      src={facebook}
+                      alt="facebook"
+                    />
+                  </a>
+                  <a href="#" className="logo">
+                    <img
+                      className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
+                      src={apple}
+                      alt="apple"
+                    />
+                  </a>
+                </div>
+              </div>
               {/* already have an account */}
               <div className="signup grid gap-4">
                 <div className="flex gap-1 justify-center text-center items-center">
@@ -296,7 +358,10 @@ export default function Registration() {
           alt="tringle"
         />
       </section>
+
       <Footer />
+      {/* <ToastContainer position="top-center" /> */}
+      <Toaster />
     </>
   );
 };
