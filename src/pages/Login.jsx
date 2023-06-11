@@ -6,11 +6,14 @@ import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../context/AuthProvider";
 import toast, { Toaster } from 'react-hot-toast';
+import { FacebookAuthProvider, GoogleAuthProvider } from "firebase/auth";
 
 export default function Login() {
   const { pathname } = useLocation();
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const { login } = useContext(AuthContext)
+  const { login, googleSignIn, facebookSignIn } = useContext(AuthContext)
+  const googleProvider = new GoogleAuthProvider()
+  const facebookProvider = new FacebookAuthProvider();
   // const location = useLocation();
   const navigate = useNavigate();
   // const from = location.state?.from?.pathname || "/";
@@ -37,6 +40,34 @@ export default function Login() {
         toast.error(error.message);
       })
   }
+
+ // Google Sign In
+ const handleSignInGoogle = () => {
+  googleSignIn(googleProvider)
+    .then(result => {
+      const user = result.user;
+      
+      toast.success("successfully logged in");
+      navigate('/');
+    })
+    .catch(error => {
+      toast.error(error.message);
+    })
+}
+// Facebook Sign In
+const handelFacebookSignIn = () => {
+  facebookSignIn(facebookProvider)
+      .then(result => {
+          const user = result.user
+          console.log(user);
+
+      })
+      .catch(error => {
+          console.log('Error', error);
+      })
+
+}
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -114,14 +145,15 @@ export default function Login() {
                   <h5>Or sign in with:</h5>
                 </div>
                 <div className="logos flex justify-center items-center gap-3">
-                  <a href="#" className="logo">
+                  <a onClick={handleSignInGoogle} href="#" className="logo">
                     <img
                       className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
                       src={google}
                       alt="google"
                     />
                   </a>
-                  <a href="#" className="logo">
+                  <a onClick={handelFacebookSignIn}
+                  href="#" className="logo">
                     <img
                       className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
                       src={facebook}
@@ -140,7 +172,7 @@ export default function Login() {
 
               {/* new */}
               <div className="registration flex flex-col justify-center items-center gap-1">
-                <Link to="/registration">New user?</Link>
+                <Link to="/registration">Are you New user?</Link>
                 <Link to="/registration" className="underline">
                   Register now
                 </Link>

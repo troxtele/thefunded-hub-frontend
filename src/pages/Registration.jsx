@@ -299,6 +299,16 @@ const handelFacebookSignIn = () => {
                 </div>
 
                 <div className="logos flex justify-center items-center gap-3">
+
+                  {/* <button onClick={handleSignInGoogle}>   <a >
+                    <img
+                      className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
+                      src={google}
+                      alt="google"
+                    />
+                  </a></button>
+              */}
+                  
                   <a onClick={handleSignInGoogle}>
                     <img
                       className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
