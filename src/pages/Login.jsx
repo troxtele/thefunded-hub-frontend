@@ -2,11 +2,11 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { google, facebook, apple, tringle } from "../ui/images";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../context/AuthProvider";
 import toast, { Toaster } from 'react-hot-toast';
-import { FacebookAuthProvider, GoogleAuthProvider } from "firebase/auth";
+import { FacebookAuthProvider, GoogleAuthProvider, sendPasswordResetEmail } from "firebase/auth";
 
 export default function Login() {
   const { pathname } = useLocation();
@@ -16,6 +16,7 @@ export default function Login() {
   const facebookProvider = new FacebookAuthProvider();
   // const location = useLocation();
   const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState('');
   // const from = location.state?.from?.pathname || "/";
 
   const handleLogin = (data, event) => {
@@ -71,6 +72,25 @@ const handelFacebookSignIn = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  const handleEmailBlur = event =>{
+    const email = event.target.value;
+    setUserEmail(email);
+    console.log(email);
+  }
+
+  const handleForgetPassword = () =>{
+    if(!userEmail){
+      alert('Please enter your email address')
+    }
+    sendPasswordResetEmail(auth, userEmail)
+    .then( () =>{
+      alert("Please rest your Password and Check your email")
+    })
+    .catch( error =>{
+      console.error(console.error(error));
+    })
+  }
   return (
     <>
       <Navbar />
@@ -88,7 +108,7 @@ const handelFacebookSignIn = () => {
               </div>
               {/* Email */}
               <div className="email">
-                <input
+                <input onBlur={handleEmailBlur}
                   {...register("email", {
                     required: "email address is required",
                   })}
@@ -123,11 +143,11 @@ const handelFacebookSignIn = () => {
                   <label htmlFor="remeber" className="sm:cursor-pointer">Remember me</label>
                 </div>
                 {/* Forget password */}
-                {/* <div className="forgetpass">
-                  <a href="#" className="underline font-thin ">
+                <div className="forgetpass">
+                  <a onClick={handleForgetPassword} href="#" className="underline font-thin ">
                     Forget Password
                   </a>
-                </div> */}
+                </div>
               </div>
 
               {/* Login button */}
@@ -160,13 +180,7 @@ const handelFacebookSignIn = () => {
                       alt="facebook"
                     />
                   </a>
-                  <a href="#" className="logo">
-                    <img
-                      className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
-                      src={apple}
-                      alt="apple"
-                    />
-                  </a>
+           
                 </div>
               </div>
 

@@ -2,16 +2,16 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { apple, arrow, facebook, google, tringle } from "../ui/images";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../context/AuthProvider";
 import { Country } from "country-state-city";
 import toast, { Toaster } from 'react-hot-toast';
-import { FacebookAuthProvider, GoogleAuthProvider } from "firebase/auth";
+import { FacebookAuthProvider, GoogleAuthProvider, getAuth, sendEmailVerification } from "firebase/auth";
 const allCountry = Country.getAllCountries();
 
 export default function Registration() {
-
+const auth = getAuth();
   const { pathname } = useLocation();
   const { register, handleSubmit, formState: { errors } } = useForm()
   const { createUser, updateUser, googleSignIn, facebookSignIn } = useContext(AuthContext);
@@ -20,12 +20,15 @@ export default function Registration() {
   const navigate = useNavigate();
 
   const handleSignUp = (data, event) => {
+    // const [success, setSuccess] = useState(false);
+    // setSuccess(false);
     // console.log(data);
     createUser(data.email, data.password)
       .then(result => {
         const user = result.user;
        toast.success("Successfully User Created")
         event.target.reset();
+        verifyEmail();
         const userInfo = {
           displayName: data.name,
         };
@@ -69,6 +72,13 @@ export default function Registration() {
         console.log(error);
       })
   };
+
+const verifyEmail = () =>{
+  sendEmailVerification(auth.currentUser)
+  .then( ()=>{
+    alert('Please check your email')
+  })
+}
 
 
  // Google Sign In
@@ -324,13 +334,7 @@ const handelFacebookSignIn = () => {
                       alt="facebook"
                     />
                   </a>
-                  <a href="#" className="logo">
-                    <img
-                      className="w-10 sm:w-[2.8rem] md:w-[3.2rem]"
-                      src={apple}
-                      alt="apple"
-                    />
-                  </a>
+             
                 </div>
               </div>
               {/* already have an account */}
